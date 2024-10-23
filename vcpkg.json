@@ -1,6 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-    "name": "skyrim-template-hello",
+    "name": "survival-mode-improved",
     "version-semver": "1.5.0",
     "dependencies": [
       "fmt",
@@ -19,3 +19,4 @@
       }
     }
   }
+  

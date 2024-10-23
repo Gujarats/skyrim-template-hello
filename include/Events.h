@@ -1,4 +1,5 @@
 #pragma once
+#include "Buffs/Awake.h"
 #include "Utility.h"
 
 namespace Events
