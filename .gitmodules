@@ -1,0 +1,6 @@
+[submodule "extern/CommonLibSSE-NG"]
+	path = extern/CommonLibSSE-NG
+	url = https://github.com/CharmedBaryon/CommonLibSSE-NG
+[submodule "extern"]
+	path = extern
+	url = git@github.com:CharmedBaryon/CommonLibSSE-NG.git
