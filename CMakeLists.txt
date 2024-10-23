@@ -1,145 +1,34 @@
-cmake_minimum_required(VERSION 3.30)
-message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
+cmake_minimum_required(VERSION 3.22)
 
 project(
-  TemplateHelloWorld
-  VERSION 0.0.1
-  LANGUAGES CXX
+	SKyrimTemplateHello
+	VERSION 0.0.1
+	LANGUAGES CXX
 )
-
-#Enable for 1130 changes
-set(ENABLE_SKYRIMAE1130 OFF)
-
-set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
-set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
-set(SKSE_SUPPORT_XBYAK ON)
-set(ENABLE_SKYRIM_VR OFF)
 
-include(GNUInstallDirs)
+if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
+	message(FATAL_ERROR "in-source builds are not allowed")
+endif()
 
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/cmake/Version.h.in
-	${CMAKE_CURRENT_BINARY_DIR}/src/Version.h
-	@ONLY
-)
+macro(set_from_environment VARIABLE)
+	if(NOT DEFINED ${VARIABLE} AND DEFINED ENV{${VARIABLE}})
+		set(${VARIABLE} $ENV{${VARIABLE}})
+	endif()
+endmacro()
 
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/src/version.rc
-  @ONLY
-)
+set_from_environment(CompiledPluginsPath)
+if(NOT DEFINED CompiledPluginsPath)
+	message(FATAL_ERROR "CompiledPluginsPath is not set")
+endif()
 
-set(PUBLIC_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/include/${PROJECT_NAME})
-
-# Add headers
-file(
-  GLOB_RECURSE
-  headers
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/include/*.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/include/*.hpp
-  ${CMAKE_CURRENT_BINARY_DIR}/src/include/Version.h
-
-)
-list(REMOVE_ITEM headers ${CMAKE_CURRENT_SOURCE_DIR}/src/include/PCH.h)
-
-# Add sources
-file(
-  GLOB_RECURSE
-  sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc
-  ${CMAKE_CURRENT_BINARY_DIR}/src/version.rc
-  ${CMAKE_CURRENT_BINARY_DIR}/src/include/Version.h
-)
-
-source_group(
-  TREE ${CMAKE_CURRENT_SOURCE_DIR}
-  FILES ${headers} ${sources}
-)
-
+option(COPY_OUTPUT "Copy the output of build operations to the game directory" ON)
+option(ENABLE_SKYRIM_SE "Enable support for Skyrim SE in the dynamic runtime feature." ON)
+option(ENABLE_SKYRIM_AE "Enable support for Skyrim AE in the dynamic runtime feature." ON)
+option(ENABLE_SKYRIM_VR "Enable support for Skyrim VR in the dynamic runtime feature." OFF)
 set(BUILD_TESTS OFF)
-add_subdirectory(extern/CommonLibSSE-NG)
-include(extern/CommonLibSSE-NG/cmake/CommonLibSSE.cmake)
 
-add_commonlibsse_plugin(
-  ${PROJECT_NAME}
-  AUTHOR gujarats
-  SOURCES ${headers} ${sources}
-)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-find_path(SIMPLEINI_INCLUDE_DIRS "SimpleIni.h")
-
-set (SOURCES ${headers} ${sources})
-
-
-target_include_directories(
-  ${PROJECT_NAME}
-  PRIVATE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src/include>
-  $<INSTALL_INTERFACE:src>
-  ${SIMPLEINI_INCLUDE_DIRS}
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/include>
-)
-
-target_precompile_headers(
-  ${PROJECT_NAME}
-  PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/include/PCH.h
-  ${SIMPLEINI_INCLUDE_DIRS}/SimpleIni.h
-)
-
-install(
-  DIRECTORY ${PUBLIC_HEADER_DIR}
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-install(
-  TARGETS ${PROJECT_NAME}
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-
-if(CMAKE_BUILD_TYPE STREQUAL Debug)
-  set(BUILD_NAME Debug)
-else()
-  set(BUILD_NAME Release)
-endif()
-
-if(ENABLE_SKYRIMAE1130)
-	message("\tBuilding 1130")
-  set(BUILD_NAME ${BUILD_NAME}1130)
-endif()
-
-add_custom_command(
-  TARGET ${PROJECT_NAME}
-  POST_BUILD
-  COMMAND
-  ${CMAKE_COMMAND} -E make_directory $ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}/SKSE/Plugins
-  COMMAND
-  ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> $ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}/SKSE/Plugins
-  COMMAND
-  ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> $ENV{SKYRIM_MODS_FOLDER}/${PROJECT_NAME}/SKSE/Plugins
-  COMMAND
-  ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/build/Plugin${BUILD_NAME}/SKSE/Plugins
-  COMMAND
-  ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_SOURCE_DIR}/build/Plugin${BUILD_NAME}/SKSE/Plugins
-  COMMAND
-  ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> ${CMAKE_CURRENT_SOURCE_DIR}/build/Plugin${BUILD_NAME}/SKSE/Plugins
-  COMMAND
-  ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/build/Config/${PROJECT_NAME}.ini ${CMAKE_CURRENT_SOURCE_DIR}/build/Plugin${BUILD_NAME}/SKSE/Plugins
-)
-
-file(GLOB_RECURSE OUTPUT_DLLS ${CMAKE_CURRENT_SOURCE_DIR}/build/**/*.dll)
-file(GLOB_RECURSE OUTPUT_PDBS ${CMAKE_CURRENT_SOURCE_DIR}/build/**/*.pdb)
-
-set_property(
-  TARGET ${PROJECT_NAME}
-  APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${OUTPUT_DLLS} ${OUTPUT_PDBS}
-)
+add_subdirectory(src)
+include(cmake/packaging.cmake)

@@ -1,6 +1,4 @@
-#include "include/Events.h"
-#include "include/FormLoader.h"
-
+#include "include/events.h"
 
 void SetupLog() {
     auto path{ SKSE::log::log_directory() };
@@ -27,8 +25,7 @@ void InitListener(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
 	case SKSE::MessagingInterface::kDataLoaded:
-        FormLoader::GetSingleton()->LoadAllForms();
-        Events::Register();
+        events::registerAllEventHandlers();
 		break;
 	}
 }
