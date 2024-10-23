@@ -1,5 +1,6 @@
 #pragma once
 #include "Utility.h"
+#include "Buffs/Awake.h"
 
 class FormLoader
 {
@@ -12,7 +13,7 @@ public:
     }
 
     void LoadAllForms() { 
-        logger::info("Begin load all forms");
+      /*Load all assets start here*/
     }
 
     // Cache commonly called addresses to avoid address lib overhead

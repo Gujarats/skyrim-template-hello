@@ -5,4 +5,4 @@ build
 cmake-build*
 SkyrimSE.code-workspace
 skyrimse.ppj
-mod/SleepGivesBuff/.vscode/*
+mod/*/.vscode/*

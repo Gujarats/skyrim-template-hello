@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 
 project(
-  TemplateHelloWorld
+  HelloWorld
   VERSION 0.0.1
   LANGUAGES CXX
 )
@@ -22,28 +22,28 @@ include(GNUInstallDirs)
 
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/Version.h.in
-	${CMAKE_CURRENT_BINARY_DIR}/src/Version.h
+	${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
 	@ONLY
 )
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/src/version.rc
+  ${CMAKE_CURRENT_BINARY_DIR}/version.rc
   @ONLY
 )
 
-set(PUBLIC_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/include/${PROJECT_NAME})
+set(PUBLIC_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME})
 
 # Add headers
 file(
   GLOB_RECURSE
   headers
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/include/*.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/include/*.hpp
-  ${CMAKE_CURRENT_BINARY_DIR}/src/include/Version.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
+  ${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
 
 )
-list(REMOVE_ITEM headers ${CMAKE_CURRENT_SOURCE_DIR}/src/include/PCH.h)
+list(REMOVE_ITEM headers ${CMAKE_CURRENT_SOURCE_DIR}/include/PCH.h)
 
 # Add sources
 file(
@@ -51,8 +51,8 @@ file(
   sources
   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc
-  ${CMAKE_CURRENT_BINARY_DIR}/src/version.rc
-  ${CMAKE_CURRENT_BINARY_DIR}/src/include/Version.h
+  ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+  ${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
 )
 
 source_group(
@@ -82,17 +82,17 @@ target_include_directories(
   PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:src>
   ${SIMPLEINI_INCLUDE_DIRS}
   PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
 target_precompile_headers(
   ${PROJECT_NAME}
   PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/include/PCH.h
+  include/PCH.h
   ${SIMPLEINI_INCLUDE_DIRS}/SimpleIni.h
 )
 

@@ -1,1 +1,2 @@
-This should contains fully working mod
+# what is it
+output folder for final working mod
