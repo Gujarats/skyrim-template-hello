@@ -1,12 +1,14 @@
 {
-  "name": "valhallacombat",
+  "name": "skyrim-template-hello",
   "version": "1",
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "dependencies": [
     "fast-cpp-csv-parser",
     "rsm-binary-io",
     "simpleini",
     "spdlog",
     "xbyak",
-    "rapidcsv"
+    "rapidcsv",
+    "commonlibsse-ng"
   ]
 }
